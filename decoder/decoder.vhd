@@ -106,6 +106,7 @@ begin
                     if start='1' then
                         masterframe<=master;
                         slaveframe<=slave;
+                        -- 忽略了帧起始位0010
                         sample8<="100";
                         state<="001";
                     else
@@ -310,29 +311,29 @@ begin
                                             else
                                                 ready<='0';
                                             end if;
-                                        --没有校验码错误
-                                        if cerrorflag='0' then
-                                            cerror<='0';
-                                        --否则，有校验码错误
+                                            --没有校验码错误
+                                            if cerrorflag='0' then
+                                                cerror<='0';
+                                            --否则，有校验码错误
+                                            else
+                                                cerror<='1';
+                                            end if;
+                                            checkcode<="00000000";
                                         else
                                             cerror<='1';
+                                            ready<='0';
+                                            merror<='0';
                                         end if;
-                                        checkcode<="00000000";
-                                    else
-                                        cerror<='1';
-                                        ready<='0';
+                                        --没有长度错误
+                                        if overflow='0' and (cfl="00001" or cfl="00010" or cfl="00100" or cfl="01000" or cfl="10000") then
+                                            lengtherror<='0';
+                                        else
+                                            lengtherror<='1';
+                                        end if;
                                         merror<='0';
-                                    end if;
-                                    --没有长度错误
-                                    if overflow='0' and (cfl="00001" or cfl="00010" or cfl="00100" or cfl="01000" or cfl="10000") then
-                                        lengtherror<='0';
-                                    else
-                                        lengtherror<='1';
-                                    end if;
-                                    merror<='0';
-                                    ismaster<=masterframe;
-                                    isslave<=slaveframe;
-                                    vframe<='1';
+                                        ismaster<=masterframe;
+                                        isslave<=slaveframe;
+                                        vframe<='1';
                                     else
                                         merror<='1';
                                         cerror<='0';
